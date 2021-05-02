@@ -4,7 +4,7 @@ Requires symbiflow to be installed and set up.
 
 ```bash
 git clone https://github.com/awkwardbunny/GameBrian-FPGA
-git submodule update
+git submodule update --recursive
 conda activate xc7
 make
 ```
