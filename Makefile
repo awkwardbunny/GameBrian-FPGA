@@ -2,21 +2,19 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
 
 GAMEBRIAN := ${current_dir}/GameBrian
-VERILOG := ${GAMEBRIAN}/generated_output/Top.v
+FPGA_FUSESOC := ${current_dir}/fpga-fusesoc
+
+CHISEL_VERILOG := ${GAMEBRIAN}/generated_output/Top.v
 
 .PHONY: prog clean
+prog: bitstream
 
-prog: ${VERILOG}
-	make -C fpga prog
+bitstream: ${CHISEL_VERILOG}
+	fusesoc --cores-root ${FPGA_FUSESOC} run meirlabs::gamebrian
 
-bitstream: ${VERILOG}
-	make -C fpga bitstream
-
-verilog: ${VERILOG}
-
-${VERILOG}:
+.PHONY: ${CHISEL_VERILOG}
+${CHISEL_VERILOG}:
 	(cd ${GAMEBRIAN} && sbt run)
 
-
 clean:
-	make -C fpga clean
+	rm -rf build ${GAMEBRIAN}/generated_output

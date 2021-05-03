@@ -1,0 +1,32 @@
+CAPI=2:
+name: meirlabs::gamebrian:0.1
+description: GameBoy Advanced ROM test for Arty A7
+
+filesets:
+  rtl:
+    files:
+      - rtl/FPGATop.v
+      - ../GameBrian/generated_output/Top.v
+    file_type: verilogSource
+
+  rom:
+    files:
+      - rom/fire.mem
+      - rom/ram.mem
+  
+  constr:
+    files: [constr/Arty-A7-100-Master.xdc : {file_type: xdc}]
+
+targets:
+  default:
+    default_tool: vivado
+    filesets: [rtl, rom, constr]
+    toplevel: FPGATop
+    tools:
+      vivado:
+        part: xc7a100tcsg324-1
+      symbiflow:
+        part: xc7a100t
+        pnr: vtr
+        package: csg324-1
+        vendor: xilinx
