@@ -12,7 +12,7 @@ prog: bitstream
 bitstream: ${CHISEL_VERILOG}
 	fusesoc --cores-root ${FPGA_FUSESOC} run meirlabs::gamebrian
 
-.PHONY: ${CHISEL_VERILOG}
+#.PHONY: ${CHISEL_VERILOG}
 ${CHISEL_VERILOG}:
 	(cd ${GAMEBRIAN} && sbt run)
 

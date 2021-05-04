@@ -1,6 +1,5 @@
 `timescale 1ns / 1ps
-
-`define RAM_TEST
+`default_nettype none
 
 module FPGATop (
 	input wire sys_clk,
@@ -8,9 +7,9 @@ module FPGATop (
 
 	input wire uart_rx,
 	output wire uart_tx,
-	//output wire [7:0] debug,
+	output wire [7:0] debug,
 
-	//input wire [3:0] btn,
+	input wire [3:0] btn,
 	output wire [3:0] led,
 
 	input wire GBA_CLK,
@@ -53,23 +52,29 @@ module FPGATop (
 		.clock(sys_clk),
 		.reset(sys_rst),
 
-		.io_gbaHost_CLK(GBA_CLK),
-		.io_gbaHost_nWR(GBA_nWR),
-		.io_gbaHost_nRD(GBA_nRD),
-		.io_gbaHost_nCS(GBA_nCS),
-		.io_gbaHost_CS2(GBA_CS2),
-		.io_gbaHost_nREQ(GBA_nREQ),
-		.io_gbaHost_VDD(GBA_VDD),
+		.io_host_gba_CLK(GBA_CLK),
+		//.io_host_gba_nWR(btn[0]),
+		//.io_host_gba_nRD(btn[1]),
+		//.io_host_gba_nCS(btn[2]),
+		//.io_host_gba_nCS2(btn[3]),
+		.io_host_gba_nWR(GBA_nWR),
+		.io_host_gba_nRD(GBA_nRD),
+		.io_host_gba_nCS(GBA_nCS),
+		.io_host_gba_nCS2(GBA_nCS2),
+		.io_host_gba_nREQ(GBA_nREQ),
+		.io_host_gba_VDD(GBA_VDD),
 
-		.io_gbaHost_AD_in(GBA_AD_in),
-		.io_gbaHost_AD_out(GBA_AD_out),
-		.io_gbaHost_AD_oe(GBA_AD_oe),
-		.io_gbaHost_A_in(GBA_A_in),
-		.io_gbaHost_A_out(GBA_A_out),
-		.io_gbaHost_A_oe(GBA_A_oe),
+		.io_host_gba_AD_in(GBA_AD_in),
+		.io_host_gba_AD_out(GBA_AD_out),
+		.io_host_gba_AD_oe(GBA_AD_oe),
+		.io_host_gba_A_in(GBA_A_in),
+		.io_host_gba_A_out(GBA_A_out),
+		.io_host_gba_A_oe(GBA_A_oe),
 
-		.io_blinkyHost_led(led)
+		.io_board_gba_debug(debug),
+		.io_board_blinky_led(led)
 	);
 
 endmodule
 
+`default_nettype wire
