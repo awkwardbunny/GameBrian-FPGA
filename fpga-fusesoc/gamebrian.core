@@ -13,6 +13,18 @@ filesets:
     files:
       - rom/fire.mem
       - rom/ram.mem
+
+  ramsim:
+    files:
+      - ../GameBrian/generated_output/GBARam.v
+      - ../sim/ram_tb.v
+    file_type: verilogSource
+
+  sim:
+    files:
+      - ../GameBrian/generated_output/Top.v
+      - ../sim/top_tb.v
+    file_type: verilogSource
   
   constr:
     files: [constr/Arty-A7-100-Master.xdc : {file_type: xdc}]
@@ -30,3 +42,11 @@ targets:
         pnr: vtr
         package: csg324-1
         vendor: xilinx
+  ramsim:
+    default_tool: icarus
+    filesets: [ramsim]
+    toplevel: ram_tb
+  sim:
+    default_tool: icarus
+    filesets: [sim]
+    toplevel: top_tb
