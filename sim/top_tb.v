@@ -61,13 +61,38 @@ module top_tb;
 		#20;
 		GBA_AD_in <= 16'h00;
 		#20;
-		GBA_nWR <= 1'b1;
 		GBA_nRD <= 1'b0;
 		#100;
 		GBA_nRD <= 1'b1;
 		#500;
 
 		GBA_AD_in <= 16'h01;
+		#20;
+		GBA_nRD <= 1'b0;
+		#100;
+		GBA_nRD <= 1'b1;
+		#20;
+		GBA_nCS2 <= 1'b1;
+		#500
+
+		GBA_nCS2 <= 1'b0;
+		#20;
+		GBA_AD_in <= 16'hF000;
+		GBA_A_in <= 8'hdd;
+		#20;
+		GBA_nWR <= 1'b0;
+		#100;
+		GBA_nWR <= 1'b1;
+		#500;
+
+		GBA_AD_in <= 16'h0000;
+		#20;
+		GBA_nRD <= 1'b0;
+		#100;
+		GBA_nRD <= 1'b1;
+		#500;
+
+		GBA_AD_in <= 16'hF000;
 		#20;
 		GBA_nRD <= 1'b0;
 		#100;

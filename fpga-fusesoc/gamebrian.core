@@ -20,6 +20,12 @@ filesets:
       - ../sim/ram_tb.v
     file_type: verilogSource
 
+  sdsim:
+    files:
+      - ../GameBrian/generated_output/SDCard.v
+      - ../sim/sd_tb.v
+    file_type: verilogSource
+
   sim:
     files:
       - ../GameBrian/generated_output/Top.v
@@ -46,6 +52,10 @@ targets:
     default_tool: icarus
     filesets: [ramsim]
     toplevel: ram_tb
+  sdsim:
+    default_tool: icarus
+    filesets: [sdsim]
+    toplevel: sd_tb
   sim:
     default_tool: icarus
     filesets: [sim]

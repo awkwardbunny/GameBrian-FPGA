@@ -12,6 +12,11 @@ module FPGATop (
 	input wire [3:0] btn,
 	output wire [3:0] led,
 
+	output wire spi_cs,
+	output wire spi_sck,
+	output wire spi_mosi,
+	input wire spi_miso,
+
 	input wire GBA_CLK,
 	input wire GBA_nWR,
 	input wire GBA_nRD,
@@ -53,10 +58,6 @@ module FPGATop (
 		.reset(sys_rst),
 
 		.io_host_gba_CLK(GBA_CLK),
-		//.io_host_gba_nWR(btn[0]),
-		//.io_host_gba_nRD(btn[1]),
-		//.io_host_gba_nCS(btn[2]),
-		//.io_host_gba_nCS2(btn[3]),
 		.io_host_gba_nWR(GBA_nWR),
 		.io_host_gba_nRD(GBA_nRD),
 		.io_host_gba_nCS(GBA_nCS),
@@ -71,7 +72,13 @@ module FPGATop (
 		.io_host_gba_A_out(GBA_A_out),
 		.io_host_gba_A_oe(GBA_A_oe),
 
-		.io_board_gba_debug(debug),
+		.io_board_sd_spi_cs(spi_cs),
+		.io_board_sd_spi_sck(spi_sck),
+		.io_board_sd_spi_mosi(spi_mosi),
+		.io_board_sd_spi_miso(spi_miso),
+
+		.io_board_gba_debug(),
+		.io_board_sd_debug(debug),
 		.io_board_blinky_led(led)
 	);
 

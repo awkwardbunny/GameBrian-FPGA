@@ -6,7 +6,7 @@ FPGA_FUSESOC := ${current_dir}/fpga-fusesoc
 
 CHISEL_VERILOG := ${GAMEBRIAN}/generated_output/Top.v
 
-.PHONY: prog clean sim ramsim
+.PHONY: prog clean sim ramsim gba
 prog: bitstream
 
 bitstream: ${CHISEL_VERILOG}
@@ -20,9 +20,16 @@ ramsim: sim/ram_tb.v
 	fusesoc --cores-root ${FPGA_FUSESOC} run --target=$@ meirlabs::gamebrian
 	#xdg-open build/meirlabs__gamebrian_0.1/$@-icarus/dump.vcd
 
+sdsim: sim/sd_tb.v
+	fusesoc --cores-root ${FPGA_FUSESOC} run --target=$@ meirlabs::gamebrian
+	#xdg-open build/meirlabs__gamebrian_0.1/$@-icarus/dump.vcd
+
 sim: sim/top_tb.v
 	fusesoc --cores-root ${FPGA_FUSESOC} run --target=$@ meirlabs::gamebrian
 	#xdg-open build/meirlabs__gamebrian_0.1/$@-icarus/dump.vcd
+
+gba:
+	make -C gba
 
 clean:
 	rm -rf build ${GAMEBRIAN}/generated_output
