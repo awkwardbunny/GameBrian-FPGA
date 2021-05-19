@@ -26,7 +26,7 @@ int main(void){
 	spi_set_cs(true);
 
 	while(1){
-		iprintf("\x1b[%d;%dH CS: %x\n", 0, 0, GBA_SD_CS);
+		iprintf("\x1b[%d;%dH CS: %x\n", 0, 0, SPI_CS);
 		iprintf("\x1b[%d;%dH Press \"A\" to send CMD0\n", 1, 0);
 		iprintf("\x1b[%d;%dH Press \"B\" to toggle CS\n", 2, 0);
 		iprintf("\x1b[%d;%dH Press \"UP\" to send ACMD41\n", 3, 0);
@@ -63,7 +63,7 @@ int main(void){
 			delay(10);
 		}else if(pressed & KEY_B){
 			// Toggle CS
-			spi_set_cs(!GBA_SD_CS);
+			spi_set_cs(!SPI_CS);
 		}else if(pressed & KEY_RIGHT){
 			// Clear screen
 			iprintf("\x1b[2J");
