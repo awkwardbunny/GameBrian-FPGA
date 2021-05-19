@@ -33,60 +33,177 @@ module sd_tb;
 		rst <= 1'b0;
 		#20;
 
-		addr <= 16'h0; // REG_CMD
-		mosi <= 8'h40; // CMD0
+		#10000
+
+		// nCS = 0
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h00;    // 0x00
 		write <= 1'b1;
 		#30
 		write <= 1'b0;
 		#20
 
-		addr <= 16'h1; // REG_ARG0
-		mosi <= 8'h00; // 0x00
+		// Send DUMMY
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'hFF;    // 0xFF
 		write <= 1'b1;
 		#30
 		write <= 1'b0;
 		#20
 
-		addr <= 16'h2; // REG_ARG1
-		mosi <= 8'h00; // 0x00
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
 		write <= 1'b1;
 		#30
 		write <= 1'b0;
 		#20
 
-		addr <= 16'h3; // REG_ARG2
-		mosi <= 8'h00; // 0x00
+		#50000
+
+		// Send CMD0
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'h40;    // 0x40
 		write <= 1'b1;
 		#30
 		write <= 1'b0;
 		#20
 
-		addr <= 16'h4; // REG_ARG3
-		mosi <= 8'h00; // 0x00
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
 		write <= 1'b1;
 		#30
 		write <= 1'b0;
 		#20
 
-		addr <= 16'h5; // REG_CRC
-		mosi <= 8'h95; // 0x00
+		#50000
+
+		// Send ARG[3]
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'h00;    // 0x00
 		write <= 1'b1;
 		#30
 		write <= 1'b0;
 		#20
 
-		addr <= 16'h9; // REG_STAT
-		mosi <= 8'h01; // 0x80 // Trigger CMD
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
 		write <= 1'b1;
 		#30
 		write <= 1'b0;
 		#20
 
-		#300000
+		#50000
 
-		spi_miso <= 1'b0;
-		#2500
-		spi_miso <= 1'b1;
+		// Send ARG[2]
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'h00;    // 0x00
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		#50000
+
+		// Send ARG[1]
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'h00;    // 0x00
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		#50000
+
+		// Send ARG[0]
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'h00;    // 0x00
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		#50000
+
+		// Send CRC
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'h95;    // 0x95
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		#50000
+
+		// Send DUMMY
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'hFF;    // 0xFF
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		#50000
+
+		// Read response?
+		addr <= 16'h0000; // SPI_DATA
+		mosi <= 8'hFF;    // 0xFF
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h01;    // 0x01
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
+		#50000
+
+		// nCS = 1
+		addr <= 16'h0001; // SPI_CTRL
+		mosi <= 8'h02;    // 0x02
+		write <= 1'b1;
+		#30
+		write <= 1'b0;
+		#20
+
 		#100000
 
 		$finish;
