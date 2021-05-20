@@ -35,6 +35,7 @@
 #define SD_ERR_ERASE_RESET    0x07
 #define SD_ERR_VERSION        0x08
 
+extern int sd_errcmd;
 extern int sd_errno;
 extern int sd_version;
 

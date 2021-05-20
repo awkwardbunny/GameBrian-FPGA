@@ -1,5 +1,6 @@
 #include "gba_sd.h"
 
+int sd_errcmd = SD_CMD0;
 int sd_errno = SD_ERR_NONE;
 int sd_version = SD_VERSION_UNK;
 
@@ -14,6 +15,7 @@ u8 sd_send_cmd(u8 cmd, u32 args, u8 crc){
     spi_transfer(crc);
     spi_transfer(0xFF); // DUMMY
 
+    sd_errcmd = cmd;
     return sd_set_errno(spi_transfer(0xFF));
 }
 
@@ -120,46 +122,28 @@ u32 sd_ocr(){
     return ocr;
 }
 
-/** TODO: iprintf's only for debugging,
- *        find better ways to report errors?
- */
-
-#include <stdio.h>
-
 bool init_sd(){
 	sd_reset();
-	if(sd_errno){
-		iprintf("CMD0: %s\n", sd_strerr(sd_errno));
+	if(sd_errno)
 		return false;
-	}
 
 	u8 resp = sd_get_version();
-	if(sd_errno){
-		iprintf("CMD8: %s\n", sd_strerr(sd_errno));
+	if(sd_errno)
 		return false;
-	}
 
-	// iprintf("Init...");
 	do {
 		resp = sd_init();
-		if(sd_errno){
-			iprintf("%s\n", sd_strerr(sd_errno));
+		if(sd_errno)
 			return false;
-		};
 	} while(resp & SD_R1_IDLE);
-	// iprintf("DONE!\n");
 
 	u32 ocr = sd_ocr();
-	if(sd_errno){
-		iprintf("CMD58: %s\n", sd_strerr(sd_errno));
+	if(sd_errno)
 		return false;
-	}
 
     if(ocr >> 24 == 0xC0){
         sd_version = SD_VERSION_SDHC;
     }
-
-	// iprintf("OCR: %lx\n", ocr);
 
 	return true;
 }

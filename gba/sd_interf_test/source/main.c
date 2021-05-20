@@ -26,32 +26,26 @@ int main(void){
 	spi_set_cs(true);
 
 	while(1){
-		iprintf("\x1b[%d;%dH CS: %x\n", 0, 0, SPI_CS);
-
 		VBlankIntrWait();
 		scanKeys();
 		u16 pressed = keysDown();
 		if(pressed & KEY_START) {
 
 			bool init_success = init_sd();
-			iprintf("Init SD is %s\n", init_success ? "successful" : "failed");
-			iprintf("Version: ");
-			switch(sd_version){
-				case SD_VERSION_SD1:  iprintf("SD1\n"); break;
-				case SD_VERSION_SD2:  iprintf("SD2\n"); break;
-				case SD_VERSION_SDHC: iprintf("SDHC\n"); break;
-				default:
-				case SD_VERSION_UNK:  iprintf("UNKNOWN\n");
+			if(init_success){
+				iprintf("SD initialized successfully\n");
+				iprintf("Version: ");
+				switch(sd_version){
+					case SD_VERSION_SD1:  iprintf("SD1\n"); break;
+					case SD_VERSION_SD2:  iprintf("SD2\n"); break;
+					case SD_VERSION_SDHC: iprintf("SDHC\n"); break;
+					default:
+					case SD_VERSION_UNK:  iprintf("UNKNOWN\n");
+				}
+			} else {
+				iprintf("ERR %x: %s\n", sd_errcmd, sd_strerr(sd_errno));
 			}
 			
-			delay(10);
-		}else if(pressed & KEY_L){
-			// Toggle CS
-			spi_set_cs(!SPI_CS);
-			delay(10);
-		}else if(pressed & KEY_R){
-			// Send dummy
-			sd_dummy();
 			delay(10);
 		}else if(pressed & KEY_SELECT){
 			// Clear screen
