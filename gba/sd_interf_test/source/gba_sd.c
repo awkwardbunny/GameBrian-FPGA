@@ -121,3 +121,43 @@ u32 sd_ocr(){
 
     return ocr;
 }
+
+/** TODO: iprintf's only for debugging,
+ *        find better ways to report errors?
+ */
+
+#include <stdio.h>
+
+bool init_sd(){
+	sd_reset();
+	if(sd_errno){
+		iprintf("CMD0: %s\n", sd_strerr(sd_errno));
+		return false;
+	}
+
+	u8 ver = sd_version();
+	if(ver == SD_VERSION_ERR){
+		iprintf("CMD8: VERSION ERROR");
+		return false;
+	}
+
+	iprintf("Init...");
+	u8 resp;
+	do {
+		resp = sd_init(ver);
+		if(sd_errno){
+			iprintf("%s\n", sd_strerr(sd_errno));
+			return false;
+		};
+	} while(resp & SD_R1_IDLE);
+	iprintf("DONE!\n");
+
+	u32 ocr = sd_ocr();
+	if(sd_errno){
+		iprintf("CMD58: %s\n", sd_strerr(sd_errno));
+		return false;
+	}
+	iprintf("OCR: %lx\n", ocr);
+
+	return true;
+}

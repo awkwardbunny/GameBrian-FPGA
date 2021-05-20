@@ -36,6 +36,8 @@
 
 extern int sd_errno;
 
+bool init_sd(void);
+
 u8 sd_send_cmd(u8 cmd, u32 args, u8 crc);
 u8 sd_send_acmd(u8 cmd, u32 args, u8 crc);
 

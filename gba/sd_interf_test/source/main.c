@@ -24,7 +24,6 @@ int main(void){
 	WAITCNT |= 0x0003; // SRAM waitstate = 8 cycles
 
 	spi_set_cs(true);
-	u8 ver = SD_VERSION_ERR;
 
 	while(1){
 		iprintf("\x1b[%d;%dH CS: %x\n", 0, 0, SPI_CS);
@@ -34,41 +33,9 @@ int main(void){
 		u16 pressed = keysDown();
 		if(pressed & KEY_START) {
 
-			sd_reset();
-			iprintf("\x1b[%d;%dH-CMD0: %s\n", 2, 0, sd_strerr(sd_errno));
+			bool init_success = init_sd();
+			iprintf("Init SD is %s\n", init_success ? "successful" : "failed");
 			
-			delay(10);
-		}else if(pressed & KEY_A){
-			iprintf("\x1b[%d;%dH-CMD8: ", 3, 0);
-			
-			ver = sd_version();
-			if(ver == SD_VERSION1)
-				iprintf("SD1\n");
-			else if(ver == SD_VERSION2)
-				iprintf("SD2\n");
-			else
-				iprintf("ERROR\n");
-
-			delay(10);
-		}else if(pressed & KEY_B){
-			iprintf("\x1b[%d;%dH-ACMD41: ", 4, 0);
-			
-			u8 resp = sd_init(ver);
-			if(resp & SD_R1_IDLE)
-				iprintf("IDLE\n");
-			else
-				iprintf("%s\n", sd_strerr(sd_errno));
-			
-			delay(10);
-		}else if(pressed & KEY_UP){
-			iprintf("\x1b[%d;%dH-CMD58: ", 5, 0);
-			
-			u32 ocr = sd_ocr();
-			if(sd_errno)
-				iprintf("%s\n", sd_strerr(sd_errno));
-			else
-				iprintf("%lx\n", ocr);
-
 			delay(10);
 		}else if(pressed & KEY_L){
 			// Toggle CS
