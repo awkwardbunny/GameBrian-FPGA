@@ -8,4 +8,4 @@ sd_interf_test:
 	ssh gbapi ./multiboot $@_mb.gba
 
 clean:
-	make -C sd_interf_test
+	make -C sd_interf_test clean
