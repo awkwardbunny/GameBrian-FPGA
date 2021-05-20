@@ -7,6 +7,7 @@
 #include <gba_input.h>
 
 #include "gba_sd.h"
+#include "timer.h"
 
 #define WAITCNT (*((unsigned short volatile *) 0x4000204))
 //#define ROM ((unsigned char volatile *) 0x8000000)
@@ -21,11 +22,16 @@ int main(void){
 
 	consoleDemoInit();
 
+	timer_init();
+
 	WAITCNT |= 0x0003; // SRAM waitstate = 8 cycles
 
 	spi_set_cs(true);
 
 	while(1){
+		u32 ms = millis();
+		iprintf("\x1b[%d;%dHTime: %ld\n", 0, 0, ms/1000);
+
 		VBlankIntrWait();
 		scanKeys();
 		u16 pressed = keysDown();
@@ -46,6 +52,19 @@ int main(void){
 				iprintf("ERR %x: %s\n", sd_errcmd, sd_strerr(sd_errno));
 			}
 			
+			delay(10);
+		}else if(pressed & KEY_A){
+			iprintf("Reading from sd...");
+			u8 *buf = malloc(16);
+			if(read_sd(0, 0, 16, buf)){
+				iprintf("S!\n");
+				iprintf("DATA: %s\n", buf);
+			} else {
+				iprintf("F!\n");
+				iprintf("ERR %x: %s\n", sd_errcmd, sd_strerr(sd_errno));
+			}
+			free(buf);
+
 			delay(10);
 		}else if(pressed & KEY_SELECT){
 			// Clear screen

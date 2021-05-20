@@ -3,6 +3,7 @@
 
 #include <gba_types.h>
 #include "gba_spi.h"
+#include "timer.h"
 
 #define SD_R1_IDLE                 (1<<0)
 #define SD_R1_ERASE_RESET          (1<<1)
@@ -20,6 +21,7 @@
 #define SD_CMD_BASE 0x40
 #define SD_CMD0   (SD_CMD_BASE + 0)
 #define SD_CMD8   (SD_CMD_BASE + 8)
+#define SD_CMD17  (SD_CMD_BASE + 17)
 #define SD_CMD55  (SD_CMD_BASE + 55)
 #define SD_CMD58  (SD_CMD_BASE + 58)
 #define SD_CMD41  (SD_CMD_BASE + 41)
@@ -34,12 +36,18 @@
 #define SD_ERR_BLANK          0x06
 #define SD_ERR_ERASE_RESET    0x07
 #define SD_ERR_VERSION        0x08
+#define SD_ERR_TIMEOUT        0x09
+
+#define SD_CMD_TIMEOUT     300
+#define SD_INIT_TIMEOUT    2000
+#define SD_READ_TIMEOUT    300
 
 extern int sd_errcmd;
 extern int sd_errno;
 extern int sd_version;
 
 bool init_sd(void);
+bool read_sd(u32 block, u16 offset, u16 count, u8 *dest);
 
 u8 sd_send_cmd(u8 cmd, u32 args, u8 crc);
 u8 sd_send_acmd(u8 cmd, u32 args, u8 crc);
