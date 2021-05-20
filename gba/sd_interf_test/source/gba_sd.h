@@ -12,10 +12,10 @@
 #define SD_R1_ADDRESS_ERROR        (1<<5)
 #define SD_R1_PARAMETER_ERROR      (1<<6)
 
-#define SD_VERSION1    0x01
-#define SD_VERSION2    0x02
-#define SD_VERSION2HC  0x03
-#define SD_VERSION_ERR 0xFF
+#define SD_VERSION_UNK    0x00
+#define SD_VERSION_SD1    0x01
+#define SD_VERSION_SD2    0x02
+#define SD_VERSION_SDHC   0x03
 
 #define SD_CMD_BASE 0x40
 #define SD_CMD0   (SD_CMD_BASE + 0)
@@ -33,8 +33,10 @@
 #define SD_ERR_PARAMETER      0x05
 #define SD_ERR_BLANK          0x06
 #define SD_ERR_ERASE_RESET    0x07
+#define SD_ERR_VERSION        0x08
 
 extern int sd_errno;
+extern int sd_version;
 
 bool init_sd(void);
 
@@ -46,8 +48,8 @@ u8 sd_set_errno(u8 resp);
 const char* sd_strerr(int errno);
 
 u8 sd_reset(void);
-u8 sd_version(void);
-u8 sd_init(u8 version);
+u8 sd_get_version(void);
+u8 sd_init();
 u32 sd_ocr(void);
 
 #endif

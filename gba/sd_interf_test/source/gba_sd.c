@@ -1,6 +1,7 @@
 #include "gba_sd.h"
 
 int sd_errno = SD_ERR_NONE;
+int sd_version = SD_VERSION_UNK;
 
 u8 sd_send_cmd(u8 cmd, u32 args, u8 crc){
     spi_transfer(0xFF); // DUMMY
@@ -46,6 +47,7 @@ const char* sd_strerr(int errno){
         case SD_ERR_PARAMETER:      return "PARAMETER ERROR";
         case SD_ERR_BLANK:          return "EMPTY RESPONSE";
         case SD_ERR_ERASE_RESET:    return "ERASE RESET";
+        case SD_ERR_VERSION:        return "VERSION ERROR";
         default:                    return "UNKNOWN ERROR";
     }
 }
@@ -64,34 +66,30 @@ u8 sd_reset(){
     return resp;
 }
 
-u8 sd_version(){
-    u8 ver = 0xFF;
-
+u8 sd_get_version(){
     spi_set_cs(false);
-    sd_send_cmd(SD_CMD8, 0x1AA, 0x87);
+    u8 resp = sd_send_cmd(SD_CMD8, 0x1AA, 0x87);
 
     if(sd_errno == SD_ERR_ILLEGAL){
-        ver = SD_VERSION1;
+        sd_version = SD_VERSION_SD1;
     } else if(sd_errno == SD_ERR_NONE){
         spi_transfer(0xFF);
         spi_transfer(0xFF);
         spi_transfer(0xFF);
-        if(spi_transfer(0xFF) != 0xAA){
-            ver = SD_VERSION_ERR;
+        if(spi_transfer(0xFF) == 0xAA){
+            sd_version = SD_VERSION_SD2;
         } else {
-            ver = SD_VERSION2;
+            sd_errno = SD_ERR_VERSION;
         }
-    } else {
-        ver = SD_VERSION_ERR;
     }
     spi_transfer(0xFF);
     spi_set_cs(true);
 
-    return ver;
+    return resp;
 }
 
-u8 sd_init(u8 version){
-    u32 arg = (version == SD_VERSION2) ? 0x40000000 : 0;
+u8 sd_init(){
+    u32 arg = (sd_version & SD_VERSION_SD2) ? 0x40000000 : 0;
 
     spi_set_cs(false);
     u8 resp = sd_send_acmd(SD_ACMD41, arg, 0xFF);
@@ -135,29 +133,33 @@ bool init_sd(){
 		return false;
 	}
 
-	u8 ver = sd_version();
-	if(ver == SD_VERSION_ERR){
-		iprintf("CMD8: VERSION ERROR");
+	u8 resp = sd_get_version();
+	if(sd_errno){
+		iprintf("CMD8: %s\n", sd_strerr(sd_errno));
 		return false;
 	}
 
-	iprintf("Init...");
-	u8 resp;
+	// iprintf("Init...");
 	do {
-		resp = sd_init(ver);
+		resp = sd_init();
 		if(sd_errno){
 			iprintf("%s\n", sd_strerr(sd_errno));
 			return false;
 		};
 	} while(resp & SD_R1_IDLE);
-	iprintf("DONE!\n");
+	// iprintf("DONE!\n");
 
 	u32 ocr = sd_ocr();
 	if(sd_errno){
 		iprintf("CMD58: %s\n", sd_strerr(sd_errno));
 		return false;
 	}
-	iprintf("OCR: %lx\n", ocr);
+
+    if(ocr >> 24 == 0xC0){
+        sd_version = SD_VERSION_SDHC;
+    }
+
+	// iprintf("OCR: %lx\n", ocr);
 
 	return true;
 }

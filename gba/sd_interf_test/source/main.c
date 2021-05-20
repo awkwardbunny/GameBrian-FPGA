@@ -35,6 +35,14 @@ int main(void){
 
 			bool init_success = init_sd();
 			iprintf("Init SD is %s\n", init_success ? "successful" : "failed");
+			iprintf("Version: ");
+			switch(sd_version){
+				case SD_VERSION_SD1:  iprintf("SD1\n"); break;
+				case SD_VERSION_SD2:  iprintf("SD2\n"); break;
+				case SD_VERSION_SDHC: iprintf("SDHC\n"); break;
+				default:
+				case SD_VERSION_UNK:  iprintf("UNKNOWN\n");
+			}
 			
 			delay(10);
 		}else if(pressed & KEY_L){
