@@ -15,44 +15,57 @@
 
 void delay(int it){ for(;it;it--) VBlankIntrWait(); }
 
-int main(void){
+bool init(void){
+
+	WAITCNT |= 0x0003; // SRAM waitstate = 8 cycles
+
 	irqInit();
 	irqEnable(IRQ_VBLANK);
 	irqSet(IRQ_VBLANK, scanKeys);
-
 	consoleDemoInit();
 
 	timer_init();
 
-	WAITCNT |= 0x0003; // SRAM waitstate = 8 cycles
-
+	iprintf("Attempting to init sd...\n");
 	spi_set_cs(true);
+	bool sd_success;
+	for(char i = 0; i < 10; i++){
+		iprintf("Attempt #%d...\n", i);
+		if(sd_success = init_sd()) break; // That's not a typo, it's supposed to be assignment
+	}
+
+	if(!sd_success){
+		iprintf("ERR %x: %s\n", sd_errcmd, sd_strerr(sd_errno));
+		return false;
+	}
+
+	iprintf("SD initialized successfully\n");
+	iprintf("Version: ");
+	switch(sd_version){
+		case SD_VERSION_SD1:  iprintf("SD1\n"); break;
+		case SD_VERSION_SD2:  iprintf("SD2\n"); break;
+		case SD_VERSION_SDHC: iprintf("SDHC\n"); break;
+		default:
+		case SD_VERSION_UNK:  iprintf("UNKNOWN\n");
+	}
+
+	return true;
+}
+
+int main(void){
+	init();
 
 	while(1){
 		u32 ms = millis();
-		iprintf("\x1b[%d;%dHTime: %ld\n", 0, 0, ms/1000);
+		iprintf("\x1b[%d;%dH%d\n", 0, 29, (ms/1000) % 10);
+		iprintf("\x1b[%d;%dH", 0, 0);
 
 		VBlankIntrWait();
 		scanKeys();
 		u16 pressed = keysDown();
 		if(pressed & KEY_START) {
-
-			bool init_success = init_sd();
-			if(init_success){
-				iprintf("SD initialized successfully\n");
-				iprintf("Version: ");
-				switch(sd_version){
-					case SD_VERSION_SD1:  iprintf("SD1\n"); break;
-					case SD_VERSION_SD2:  iprintf("SD2\n"); break;
-					case SD_VERSION_SDHC: iprintf("SDHC\n"); break;
-					default:
-					case SD_VERSION_UNK:  iprintf("UNKNOWN\n");
-				}
-			} else {
-				iprintf("ERR %x: %s\n", sd_errcmd, sd_strerr(sd_errno));
-			}
-			
-			delay(10);
+			init();
+			delay(5);
 		}else if(pressed & KEY_A){
 			iprintf("Reading from sd...");
 			u8 *buf = malloc(16);

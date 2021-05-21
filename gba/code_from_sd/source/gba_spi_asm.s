@@ -1,6 +1,7 @@
 .cpu arm7tdmi
 
 .text
+.global msec
 
 .global spi_set_cs
 .syntax unified
@@ -39,12 +40,32 @@ spi_transfer:
 	orrs r3, r0
 	strb r3, [r2]
 
+	// Set timeout
+	// r4 is address of msec
+	// r5 is timeout value
+	// r6 is used to read msec into
+	push {r4, r5, r6}
+	ldr r4, =msec
+	ldr r6, [r4]
+	movs r5, #100
+	adds r5, r6
+
 	// while(SPI_CTRL & 0x01);
-	// TODO: Add timeout
 L1:
+	ldr r6, [r4] // read msec
+	cmp r6, r5   // compare with timeout value
+	blt L3       // continue to check status bit if msec < timeout
+
+	// otherwise, timeout and return 0xFF
+	pop {r4, r5, r6}
+	movs r0, #0xFF
+	bx lr
+L3:
 	ldrb r3, [r2]
 	ands r3, r0
 	bne L1
+
+	pop {r4, r5, r6}
 
 	// return SPI_DATA
 	ldrb r0, [r1]
