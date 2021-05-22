@@ -8,6 +8,7 @@
 
 #include "gba_sd.h"
 #include "timer.h"
+#include "sdrom.h"
 
 #define WAITCNT (*((unsigned short volatile *) 0x4000204))
 //#define ROM ((unsigned char volatile *) 0x8000000)
@@ -52,12 +53,16 @@ bool init(void){
 	return true;
 }
 
+u8 *romBuf = NULL;
+
 int main(void){
 	init();
 
+	SDROM_hdr *hdr = (SDROM_hdr *)malloc(512);
+	
 	while(1){
 		u32 ms = millis();
-		iprintf("\x1b[%d;%dH%d\n", 0, 29, (ms/1000) % 10);
+		iprintf("\x1b[%d;%dH%ld\n", 0, 29, (ms/1000) % 10);
 		iprintf("\x1b[%d;%dH", 0, 0);
 
 		VBlankIntrWait();
@@ -67,18 +72,53 @@ int main(void){
 			init();
 			delay(5);
 		}else if(pressed & KEY_A){
-			iprintf("Reading from sd...");
-			u8 *buf = malloc(16);
-			if(read_sd(0, 0, 16, buf)){
+			iprintf("Reading header from sd...");
+			if(read_sd(0, 0, 512, (u8 *)hdr)){
 				iprintf("S!\n");
-				iprintf("DATA: %s\n", buf);
 			} else {
 				iprintf("F!\n");
 				iprintf("ERR %x: %s\n", sd_errcmd, sd_strerr(sd_errno));
 			}
-			free(buf);
 
 			delay(10);
+		}else if(pressed & KEY_B){
+			iprintf("Parsing header...\n");
+			if(hdr->magic != SDROM_MAGIC){
+				iprintf("E: Invalid magic!\n");
+				iprintf("Expected: %x\n", SDROM_MAGIC);
+				iprintf("Got:      %lx\n", hdr->magic);
+				continue;
+			}
+			iprintf("Version: %ld\n", hdr->version);
+			iprintf("Type: %d\n", hdr->type);
+			iprintf("Description: %s\n", hdr->description);
+			iprintf("Start: %lx\n", hdr->start_block);
+			iprintf("Num: %lx\n", hdr->num_blocks);
+			iprintf("Entry: %lx\n", hdr->entry);
+
+			iprintf("\nMalloc'd addr: %p\n", (void *)hdr);
+		}else if(pressed & KEY_UP){
+			romBuf = malloc(hdr->num_blocks * 512);
+			iprintf("\nMalloc'd addr: %p\n", (void *)romBuf);
+
+			for(int i = 0; i < hdr->num_blocks; i++){
+				iprintf("Reading block #%ld\n", i);
+				if(!read_sd(i+hdr->start_block, 0, 512, romBuf + (i*512))){
+					iprintf("ERR %x: %s\n", sd_errcmd, sd_strerr(sd_errno));
+				}
+			}
+
+		}else if(pressed & KEY_DOWN){
+			free(romBuf);
+		}else if(pressed & KEY_LEFT){
+			iprintf("%x %x %x %x   %x %x %x %x\n",
+				romBuf[3], romBuf[2], romBuf[1], romBuf[0],
+				romBuf[7], romBuf[6], romBuf[5], romBuf[4]
+			);
+		}else if(pressed & KEY_RIGHT){
+			iprintf("Jumping to code!\n");
+			void *code = romBuf + hdr->entry;
+			iprintf("%x\n", ((u8(*)())code)());
 		}else if(pressed & KEY_SELECT){
 			// Clear screen
 			iprintf("\x1b[2J");
