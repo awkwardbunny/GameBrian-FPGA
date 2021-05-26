@@ -1,3 +1,6 @@
+
+Merged and moved to https://github.com/ME-IRL/GameBrian
+
 Build script for GameBrian on Arty A7 100T
 
 Now uses fusesoc+vivado since Chisel3 by itself can't deal with bidirectional/tristates too well,
